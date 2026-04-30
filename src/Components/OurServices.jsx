@@ -30,7 +30,7 @@ const OurServices = () => {
   ];
 
   return (
-    <div className="bg-[#03464D] py-20 px-6 rounded-[40px]">
+    <div className="bg-[#03464D] py-20 px-6 rounded-[40px] mb-6">
       {/* Header */}
       <div className="text-center mb-16">
         <h2 className="text-white text-3xl md:text-4xl font-bold mb-4">
