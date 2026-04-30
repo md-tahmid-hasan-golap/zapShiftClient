@@ -1,5 +1,6 @@
 import Banner from "./Banner";
 import BrandNew from "./BrandNew";
+import FAQ from "./FAQ";
 import Features from "./Features";
 import HowItWork from "./HowItWork";
 import MerchantCTA from "./MerchantCTA";
@@ -18,6 +19,7 @@ const Home = () => {
       <Features></Features>
       <MerchantCTA></MerchantCTA>
       <Reviews reviewsPromised={reviewsPromised}></Reviews>
+      <FAQ></FAQ>
     </div>
   );
 };
