@@ -11,6 +11,7 @@ import Errorpage from "../Components/Errorpage";
 import DashbordLayouts from "../Layouter/DashbordLayouts";
 import MyParcels from "../Components/MyParcels";
 import Private from "./Private";
+import SendParcel from "../Components/SendParcel";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,14 @@ export const router = createBrowserRouter([
       {
         path: "/aboutUs",
         Component: AboutUs,
+      },
+      {
+        path: "/sendParcel",
+        element: (
+          <Private>
+            <SendParcel />
+          </Private>
+        ),
       },
     ],
   },
