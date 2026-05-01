@@ -10,6 +10,7 @@ import AboutUs from "../Components/AboutUs";
 import Errorpage from "../Components/Errorpage";
 import DashbordLayouts from "../Layouter/DashbordLayouts";
 import MyParcels from "../Components/MyParcels";
+import Private from "./Private";
 
 export const router = createBrowserRouter([
   {
@@ -55,7 +56,11 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "myParcels",
-        Component: MyParcels,
+        element: (
+          <Private>
+            <MyParcels />
+          </Private>
+        ),
       },
     ],
   },
