@@ -7,6 +7,9 @@ import Register from "../auth/Register";
 import Services from "../Components/Services";
 import Coverage from "../Components/Coverage";
 import AboutUs from "../Components/AboutUs";
+import Errorpage from "../Components/Errorpage";
+import DashbordLayouts from "../Layouter/DashbordLayouts";
+import MyParcels from "../Components/MyParcels";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +27,7 @@ export const router = createBrowserRouter([
       {
         path: "/coverage",
         Component: Coverage,
+        loader: () => fetch("/serviceCenters.json"),
       },
       {
         path: "/aboutUs",
@@ -44,5 +48,19 @@ export const router = createBrowserRouter([
         Component: Register,
       },
     ],
+  },
+  {
+    path: "dashboard",
+    Component: DashbordLayouts,
+    children: [
+      {
+        path: "myParcels",
+        Component: MyParcels,
+      },
+    ],
+  },
+  {
+    path: "*",
+    Component: Errorpage,
   },
 ]);

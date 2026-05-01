@@ -42,16 +42,53 @@ const Navbar = () => {
   };
   const links = (
     <>
-      <li>
-        {" "}
-        <NavLink to="/services">Services</NavLink>
+      <li className="mr-1">
+        <NavLink
+          className={({ isActive }) =>
+            isActive
+              ? "text-[#CAEB66] font-bold bg-black"
+              : "text-gray-600 font-bold"
+          }
+          to="/services"
+        >
+          Services
+        </NavLink>
       </li>
-      <li>
-        {" "}
-        <NavLink to="/coverage">Coverage</NavLink>
+      <li className="mr-1">
+        <NavLink
+          className={({ isActive }) =>
+            isActive
+              ? "text-[#CAEB66] font-bold bg-black"
+              : "text-gray-600 font-bold"
+          }
+          to="/coverage"
+        >
+          Coverage
+        </NavLink>
       </li>
-      <li>
-        <NavLink to="/aboutUs">About Us</NavLink>
+      <li className="mr-1">
+        <NavLink
+          className={({ isActive }) =>
+            isActive
+              ? "text-[#CAEB66] font-bold bg-black"
+              : "text-gray-600 font-bold"
+          }
+          to="/aboutUs"
+        >
+          About Us
+        </NavLink>
+      </li>
+      <li className="mr-1">
+        <NavLink
+          className={({ isActive }) =>
+            isActive
+              ? "text-[#CAEB66] font-bold bg-black"
+              : "text-gray-600 font-bold"
+          }
+          to="dashboard/myParcels"
+        >
+          My Parcels
+        </NavLink>
       </li>
     </>
   );
