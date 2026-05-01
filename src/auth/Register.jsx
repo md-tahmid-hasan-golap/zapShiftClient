@@ -17,6 +17,7 @@ const Register = () => {
   } = useForm();
 
   const handelRegister = async (data) => {
+    console.log("Form Data:", data);
     const photoFile = data.photo[0];
     const formData = new FormData();
     // ImgBB expect correct key as 'image'
