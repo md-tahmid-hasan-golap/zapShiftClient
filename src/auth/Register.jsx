@@ -2,11 +2,13 @@ import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../firebase/FirebaseAuthProvider";
 import Swal from "sweetalert2";
-import { Link, useNavigate } from "react-router"; // useNavigate add kora hoyeche
+import { Link, useNavigate } from "react-router";
+import axios from "axios";
 
 const Register = () => {
-  const { creatUser, signInWithGoogle } = useContext(AuthContext);
-  const navigate = useNavigate(); // Navigation initialize korlam
+  const { creatUser, signInWithGoogle, updateProfile } =
+    useContext(AuthContext);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -14,27 +16,53 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const handelRegister = (data) => {
-    creatUser(data.email, data.password)
-      .then((result) => {
-        Swal.fire({
-          title: "Registration Successful!",
-          text: "Welcome to ZapShift",
-          icon: "success",
-          confirmButtonColor: "#CAEB66",
-        });
-        console.log(result);
-        navigate("/"); // Registration successful hole home-e jabe
-      })
-      .catch((error) => {
-        Swal.fire({
-          title: "Error!",
-          text: error.message,
-          icon: "error",
-          confirmButtonColor: "#EF4444",
-        });
-        console.log(error);
+  const handelRegister = async (data) => {
+    const photoFile = data.photo[0];
+    const formData = new FormData();
+    // ImgBB expect correct key as 'image'
+    formData.append("image", photoFile);
+
+    try {
+      // ১. প্রথমে ImgBB-তে ইমেজ আপলোড করা
+      const imageApiUrl = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_imageUploadUrl}`;
+      const imageRes = await axios.post(imageApiUrl, formData);
+      const imageUrl = imageRes.data.data.display_url;
+
+      // ২. Firebase-এ ইউজার অ্যাকাউন্ট তৈরি করা
+      const result = await creatUser(data.email, data.password);
+
+      // ৩. ইউজারের প্রোফাইল (Name & Photo) আপডেট করা
+      const userProfile = {
+        displayName: data.name,
+        photoURL: imageUrl,
+      };
+
+      await updateProfile(userProfile);
+
+      // ৪. সাকসেস মেসেজ দেখানো
+      Swal.fire({
+        title: "Registration Successful!",
+        text: "Welcome to ZapShift",
+        icon: "success",
+        confirmButtonColor: "#CAEB66",
       });
+
+      // ৫. সফল হলে হোম পেজে পাঠানো
+      navigate("/");
+    } catch (error) {
+      console.error("Error during registration:", error);
+
+      // ImgBB বা Firebase এর স্পেসিফিক এরর মেসেজ দেখানো
+      const errorMessage =
+        error.response?.data?.error?.message || error.message;
+
+      Swal.fire({
+        title: "Error!",
+        text: errorMessage,
+        icon: "error",
+        confirmButtonColor: "#EF4444",
+      });
+    }
   };
 
   const handelGoogleLogin = () => {
@@ -46,17 +74,15 @@ const Register = () => {
           icon: "success",
           confirmButtonColor: "#CAEB66",
         });
-        console.log(result.user);
-        navigate("/"); // Google login successful hole home-e jabe
+        navigate("/");
       })
       .catch((error) => {
         Swal.fire({
           title: "Login Failed",
-          text: "Something went wrong. Please try again.",
+          text: error.message,
           icon: "error",
           confirmButtonColor: "#EF4444",
         });
-        console.log(error.message);
       });
   };
 
@@ -71,25 +97,27 @@ const Register = () => {
             </label>
             <input
               type="text"
-              {...register("name", { required: true })}
+              {...register("name", { required: "Name is required" })}
               className="input input-bordered w-full focus:border-[#CAEB66] outline-none"
               placeholder="Enter your name"
             />
             {errors.name && (
-              <p className="text-red-500 text-sm mt-1">Name is required</p>
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
 
-          {/* photo Field */}
+          {/* Photo Field */}
           <div className="form-control w-full">
             <label className="label font-semibold text-gray-700">Photo</label>
             <input
               type="file"
-              {...register("photo", { required: true })}
+              {...register("photo", { required: "Photo is required" })}
               className="file-input file-input-bordered w-full focus:border-[#CAEB66] outline-none"
             />
             {errors.photo && (
-              <p className="text-red-500 text-sm mt-1">Photo is required</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.photo.message}
+              </p>
             )}
           </div>
 
@@ -100,12 +128,14 @@ const Register = () => {
             </label>
             <input
               type="email"
-              {...register("email", { required: true })}
+              {...register("email", { required: "Email is required" })}
               className="input input-bordered w-full focus:border-[#CAEB66] outline-none"
               placeholder="Email"
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">Email is required</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -116,16 +146,19 @@ const Register = () => {
             </label>
             <input
               type="password"
-              {...register("password", { required: true, minLength: 6 })}
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              })}
               className="input input-bordered w-full focus:border-[#CAEB66] outline-none"
               placeholder="Password"
             />
             {errors.password && (
-              <p className="text-red-500 text-sm mt-1">Password is required</p>
-            )}
-            {errors.password?.type === "minLength" && (
               <p className="text-red-500 text-sm mt-1">
-                Password must be at least 6 characters long
+                {errors.password.message}
               </p>
             )}
           </div>
@@ -138,38 +171,30 @@ const Register = () => {
             Register
           </button>
 
-          {/* Google */}
+          {/* Google Login */}
           <button
-            type="button" // type="button" deya hoyeche jate form submit na hoye shudhu google login function call hoy
+            type="button"
             onClick={handelGoogleLogin}
             className="btn bg-white text-black border-[#e5e5e5]"
           >
-            <svg
-              aria-label="Google logo"
-              width="16"
-              height="16"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-            >
-              <g>
-                <path d="m0 0H512V512H0" fill="#fff"></path>
-                <path
-                  fill="#34a853"
-                  d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
-                ></path>
-                <path
-                  fill="#4285f4"
-                  d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
-                ></path>
-                <path
-                  fill="#fbbc02"
-                  d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
-                ></path>
-                <path
-                  fill="#ea4335"
-                  d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
-                ></path>
-              </g>
+            <svg width="16" height="16" viewBox="0 0 512 512">
+              <path fill="#fff" d="m0 0H512V512H0" />
+              <path
+                fill="#34a853"
+                d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
+              />
+              <path
+                fill="#4285f4"
+                d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
+              />
+              <path
+                fill="#fbbc02"
+                d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
+              />
+              <path
+                fill="#ea4335"
+                d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
+              />
             </svg>
             Login with Google
           </button>

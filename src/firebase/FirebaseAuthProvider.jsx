@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  updateProfile as firebaseUpdateProfile, // নাম পরিবর্তন করে ইমপোর্ট করা হলো
 } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import { auth } from "./firebase.init";
@@ -13,48 +14,49 @@ export const AuthContext = createContext(null);
 const provider = new GoogleAuthProvider();
 
 const FirebaseAuthProvider = ({ children }) => {
-  // set user
   const [user, setUser] = useState(null);
-  // set loading
   const [loading, setLoading] = useState(true);
 
-  // creat user
+  // ১. ইউজার তৈরি
   const creatUser = (email, password) => {
     setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
-  // signInUser
 
+  // ২. লগইন
   const signInUser = (email, password) => {
     setLoading(true);
-
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  // signInWithGoogle
+  // ৩. গুগল লগইন
   const signInWithGoogle = () => {
     setLoading(true);
-
     return signInWithPopup(auth, provider);
   };
-  // logoutUser
+
+  // ৪. লগআউট
   const logoutUser = () => {
     setLoading(true);
     return signOut(auth);
   };
 
-  // onAuthStateChange
+  // ৫. প্রোফাইল আপডেট (সংশোধিত)
+  const updateUserProfile = (updatedData) => {
+    // updatedData তে displayName এবং photoURL থাকতে হবে
+    return firebaseUpdateProfile(auth.currentUser, updatedData);
+  };
+
+  // ৬. ইউজার স্টেট পর্যবেক্ষণ
   useEffect(() => {
-    const unsusCribe = onAuthStateChanged(auth, (crueentUser) => {
-      setUser(crueentUser);
+    const unsusCribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
       setLoading(false);
-      console.log(crueentUser);
     });
 
     return () => unsusCribe();
   }, []);
 
-  // userInfo
   const userInfo = {
     user,
     setUser,
@@ -64,6 +66,7 @@ const FirebaseAuthProvider = ({ children }) => {
     signInUser,
     signInWithGoogle,
     logoutUser,
+    updateProfile: updateUserProfile, // প্রোফাইল আপডেট ফাংশন
   };
 
   return (
