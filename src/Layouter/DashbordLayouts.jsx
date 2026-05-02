@@ -72,8 +72,20 @@ const DashbordLayouts = () => {
             </li>
 
             {/* List item */}
+            <li className="my-1">
+              <NavLink
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[#CAEB66] font-bold bg-black"
+                    : "text-gray-600 font-bold"
+                }
+                to="/dashboard/sendParcel"
+              >
+                Send Parcel
+              </NavLink>
+            </li>
 
-            <li className="mr-1">
+            <li className="my-1">
               <NavLink
                 className={({ isActive }) =>
                   isActive

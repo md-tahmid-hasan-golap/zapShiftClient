@@ -71,6 +71,10 @@ export const router = createBrowserRouter([
         path: "myParcels",
         Component: MyParcels,
       },
+      {
+        path: "sendParcel",
+        Component: SendParcel,
+      },
     ],
   },
   {
