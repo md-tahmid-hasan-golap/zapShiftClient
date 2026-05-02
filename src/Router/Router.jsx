@@ -61,15 +61,15 @@ export const router = createBrowserRouter([
   },
   {
     path: "dashboard",
-    Component: DashbordLayouts,
+    element: (
+      <Private>
+        <DashbordLayouts />
+      </Private>
+    ),
     children: [
       {
         path: "myParcels",
-        element: (
-          <Private>
-            <MyParcels />
-          </Private>
-        ),
+        Component: MyParcels,
       },
     ],
   },
