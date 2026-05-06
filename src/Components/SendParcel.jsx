@@ -2,9 +2,12 @@ import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useLoaderData } from "react-router";
 import { AuthContext } from "../firebase/FirebaseAuthProvider";
+import Swal from "sweetalert2";
+import UseAxiussecure from "./UseAxiussecure";
 
 const SendParcel = () => {
   const { register, handleSubmit, watch } = useForm();
+  const axiusSecure = UseAxiussecure();
   const { user } = useContext(AuthContext);
   const ServiceCenters = useLoaderData();
   const regionsDuplicate = ServiceCenters.map((c) => c.region);
@@ -18,7 +21,46 @@ const SendParcel = () => {
   };
 
   const handerSendAParcel = (data) => {
-    console.log(data);
+    const isDocument = data.parcelType === "Document";
+    const sameDistrict = data.senderDistrict === data.receiverDistrict;
+    const parcelWeight = parseFloat(data.parcelWeight);
+    let cost = 0;
+    if (isDocument) {
+      cost = sameDistrict ? 60 : 80;
+    } else {
+      if (parcelWeight <= 3) {
+        cost = sameDistrict ? 110 : 150;
+      } else {
+        const minCharge = sameDistrict ? 110 : 150;
+        const extraWeight = parcelWeight - 3;
+        const extraCharge = sameDistrict
+          ? extraWeight * 40
+          : extraWeight * 40 + 40;
+        cost = minCharge + extraCharge;
+      }
+    }
+    console.log("Parcel Data:", data);
+    console.log("Calculated Cost:", cost);
+    Swal.fire({
+      title: "Agree with the Cost?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, agree!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiusSecure.post("/parcels", data).then((res) => {
+          console.log("Server Response:", res.data);
+        });
+        // Swal.fire({
+        //   title: "Agreed!",
+        //   text: "Your parcel has been sent.",
+        //   icon: "success",
+        // });
+      }
+    });
   };
 
   return (
