@@ -69,13 +69,13 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "myParcels",
-        Component: MyParcels,
-      },
-      {
         path: "sendParcel",
         Component: SendParcel,
         loader: () => fetch("/serviceCenters.json"),
+      },
+      {
+        path: "myParcels",
+        Component: MyParcels,
       },
     ],
   },
