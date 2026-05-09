@@ -41,6 +41,7 @@ const SendParcel = () => {
     }
     console.log("Parcel Data:", data);
     console.log("Calculated Cost:", cost);
+    data.cost = cost;
     Swal.fire({
       title: "Agree with the Cost?",
       text: "You won't be able to revert this!",
