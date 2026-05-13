@@ -3,11 +3,13 @@ import { useContext } from "react";
 import { AuthContext } from "../firebase/FirebaseAuthProvider";
 import UseAxiussecure from "./UseAxiussecure";
 import { FaEdit, FaEye, FaTrashAlt } from "react-icons/fa";
+import Swal from "sweetalert2";
+import { Link } from "react-router";
 
 const MyParcels = () => {
   const { user } = useContext(AuthContext);
   const axiusSecure = UseAxiussecure();
-  const { data: parcels = [] } = useQuery({
+  const { data: parcels = [], refetch } = useQuery({
     queryKey: ["myParcels", user?.email],
     queryFn: async () => {
       const res = await axiusSecure.get(`/myParcel/${user?.email}`);
@@ -15,9 +17,40 @@ const MyParcels = () => {
     },
   });
 
+  const handelParcelDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiusSecure.delete(`/deleteParcel/${id}`).then((res) => {
+          // console.log("Delete Response:", res.data);
+          if (res.data.deletedCount) {
+            refetch();
+            Swal.fire({
+              title: "Deleted!",
+              text: "Your parcel has been deleted.",
+              icon: "success",
+            });
+            Swal.fire({
+              title: "Deleted!",
+              text: "Your Parcel has been deleted.",
+              icon: "success",
+            });
+          }
+        });
+      }
+    });
+  };
+
   return (
     <div>
-      <h2>This is My Parcels {parcels.length}</h2>
+      {/* <h2>This is My Parcels {parcels.length}</h2> */}
       <div className="overflow-x-auto">
         <table className="table table-zebra">
           {/* head */}
@@ -27,6 +60,7 @@ const MyParcels = () => {
               <th>Name</th>
               <th>Cost</th>
               <th>Payment Status</th>
+              <th>Delivery Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -36,7 +70,19 @@ const MyParcels = () => {
                 <th>{index + 1}</th>
                 <td>{parcel.parcelName}</td>
                 <td>{parcel.cost}</td>
-                <td>Payment Status</td>
+                <td>
+                  {parcel.paymentStatus === "paid" ? (
+                    <span className="text-green-600 font-semibold">Paid</span>
+                  ) : (
+                    <Link
+                      to={`/dashboard/pay/${parcel._id}`}
+                      className=" font-bold btn bg-[#ACC857]"
+                    >
+                      Pay
+                    </Link>
+                  )}
+                </td>
+                <td>{parcel.deliveryStatus}</td>
                 <td className="flex items-center gap-2">
                   {/* View/Details Button */}
                   <button
@@ -56,6 +102,7 @@ const MyParcels = () => {
 
                   {/* Delete Button */}
                   <button
+                    onClick={() => handelParcelDelete(parcel._id)}
                     className="btn btn-ghost btn-sm text-red-600 hover:bg-red-100"
                     title="Delete"
                   >
