@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { useForm } from "react-hook-form";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { AuthContext } from "../firebase/FirebaseAuthProvider";
 import Swal from "sweetalert2";
 import UseAxiussecure from "./UseAxiussecure";
@@ -19,6 +19,7 @@ const SendParcel = () => {
     const distics = regionDistric.map((d) => d.district);
     return distics;
   };
+  const navigate = useNavigate();
 
   const handerSendAParcel = (data) => {
     const isDocument = data.parcelType === "Document";
@@ -53,13 +54,15 @@ const SendParcel = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axiusSecure.post("/parcels", data).then((res) => {
-          console.log("Server Response:", res.data);
+          if (res.data.insertedId) {
+            Swal.fire({
+              title: "Success!",
+              text: "Your parcel has been booked.",
+              icon: "success",
+            });
+            navigate("/dashboard/myParcels");
+          }
         });
-        // Swal.fire({
-        //   title: "Agreed!",
-        //   text: "Your parcel has been sent.",
-        //   icon: "success",
-        // });
       }
     });
   };
